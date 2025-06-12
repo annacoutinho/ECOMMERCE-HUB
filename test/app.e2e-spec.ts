@@ -1,13 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../src/app.module';
 
-describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+describe('ProductsController (e2e)', () => {
+  let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -16,10 +15,18 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('/products (GET) deve retornar uma lista de produtos', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/products')
+      .expect(200);
+
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBeGreaterThan(0);
+    expect(response.body[0]).toHaveProperty('id');
+    expect(response.body[0]).toHaveProperty('name');
   });
 });
