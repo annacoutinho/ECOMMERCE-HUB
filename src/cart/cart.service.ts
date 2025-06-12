@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from "../../prisma/prisma.service" ; 
+import { PrismaService } from "../../prisma/prisma.service";
 import { AddToCartDto } from './dto/add-to-cart.dto';
 
 @Injectable()
@@ -9,7 +9,6 @@ export class CartService {
   constructor(private readonly prisma: PrismaService) {}
 
   async addToCart(item: AddToCartDto) {
-    
     await this.ensureCartExists();
 
     const existingItem = await this.prisma.itemCarrinho.findFirst({
