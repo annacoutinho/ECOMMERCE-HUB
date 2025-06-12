@@ -32,7 +32,9 @@ model ItemPedido {
   produto    Produto? @relation(fields: [produtoId], references: [id])
 }
 model Carrinho {
-  id        String      @id @default(uuid())
+ id        String      @id @default(uuid())
+  userId    String?     @unique
+  user      User?       @relation(fields: [userId], references: [id])
   itens     ItemCarrinho[]
   criadoEm  DateTime    @default(now())
 }
@@ -44,3 +46,13 @@ model ItemCarrinho {
   carrinhoId String
   carrinho   Carrinho @relation(fields: [carrinhoId], references: [id])
 }
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  carrinho  Carrinho?
+
+  createdAt DateTime  @default(now())
+}
+
+
