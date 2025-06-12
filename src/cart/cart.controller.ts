@@ -7,17 +7,22 @@ export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Post()
-  addToCart(@Body() addToCartDto: AddToCartDto) {
+  async addToCart(@Body() addToCartDto: AddToCartDto) {
     return this.cartService.addToCart(addToCartDto);
   }
 
   @Get()
-  getCart() {
+  async getCart() {
     return this.cartService.getCart();
   }
 
   @Delete(':productId')
-  removeFromCart(@Param('productId') productId: string) {
+  async removeFromCart(@Param('productId') productId: string) {
     return this.cartService.removeFromCart(productId);
+  }
+
+  @Delete()
+  async clearCart() {
+    return this.cartService.clearCart();
   }
 }

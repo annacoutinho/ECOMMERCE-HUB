@@ -1,39 +1,87 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from "../../prisma/prisma.service" ; 
 import { AddToCartDto } from './dto/add-to-cart.dto';
-
- export interface CartItem {
-  productId: string;
-  quantity: number;
-}
 
 @Injectable()
 export class CartService {
-  private cart: CartItem[] = [];
+  private readonly fixedCartId = 'carrinho-teste-123';
 
-  addToCart(item: AddToCartDto): CartItem[] {
-    const existingItem = this.cart.find(ci => ci.productId === item.productId);
+  constructor(private readonly prisma: PrismaService) {}
+
+  async addToCart(item: AddToCartDto) {
+    
+    await this.ensureCartExists();
+
+    const existingItem = await this.prisma.itemCarrinho.findFirst({
+      where: {
+        carrinhoId: this.fixedCartId,
+        produtoId: item.productId,
+      },
+    });
+
     if (existingItem) {
-      existingItem.quantity += item.quantity;
+      await this.prisma.itemCarrinho.update({
+        where: { id: existingItem.id },
+        data: {
+          quantidade: existingItem.quantidade + item.quantity,
+        },
+      });
     } else {
-      this.cart.push({ ...item });
+      await this.prisma.itemCarrinho.create({
+        data: {
+          produtoId: item.productId,
+          quantidade: item.quantity,
+          carrinhoId: this.fixedCartId,
+        },
+      });
     }
-    return this.cart;
+
+    return this.getCart();
   }
 
-  getCart(): CartItem[] {
-    return this.cart;
+  async getCart() {
+    return this.prisma.itemCarrinho.findMany({
+      where: { carrinhoId: this.fixedCartId },
+      include: { carrinho: true },
+    });
   }
 
-  removeFromCart(productId: string): CartItem[] {
-    const index = this.cart.findIndex(ci => ci.productId === productId);
-    if (index === -1) {
+  async removeFromCart(productId: string) {
+    const existingItem = await this.prisma.itemCarrinho.findFirst({
+      where: {
+        carrinhoId: this.fixedCartId,
+        produtoId: productId,
+      },
+    });
+
+    if (!existingItem) {
       throw new NotFoundException('Produto não encontrado no carrinho');
     }
-    this.cart.splice(index, 1);
-    return this.cart;
+
+    await this.prisma.itemCarrinho.delete({
+      where: { id: existingItem.id },
+    });
+
+    return this.getCart();
   }
 
-  clearCart() {
-    this.cart = [];
+  async clearCart() {
+    await this.prisma.itemCarrinho.deleteMany({
+      where: { carrinhoId: this.fixedCartId },
+    });
+  }
+
+  private async ensureCartExists() {
+    const carrinho = await this.prisma.carrinho.findUnique({
+      where: { id: this.fixedCartId },
+    });
+
+    if (!carrinho) {
+      await this.prisma.carrinho.create({
+        data: {
+          id: this.fixedCartId,
+        },
+      });
+    }
   }
 }
