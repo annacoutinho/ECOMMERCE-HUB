@@ -31,3 +31,16 @@ model ItemPedido {
   pedido     Pedido   @relation(fields: [pedidoId], references: [id])
   produto    Produto? @relation(fields: [produtoId], references: [id])
 }
+model Carrinho {
+  id        String      @id @default(uuid())
+  itens     ItemCarrinho[]
+  criadoEm  DateTime    @default(now())
+}
+
+model ItemCarrinho {
+  id         String   @id @default(uuid())
+  produtoId  String
+  quantidade Int
+  carrinhoId String
+  carrinho   Carrinho @relation(fields: [carrinhoId], references: [id])
+}
