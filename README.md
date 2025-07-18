@@ -1,6 +1,6 @@
 # E-commerce Hub - Backend
 
-Este projeto é o backend da aplicação de e-commerce desenvolvida como parte do teste técnico da Devnology. Ele é responsável por gerenciar usuários, carrinho de compras, pedidos e a integração com APIs de fornecedores nacionais e europeus.
+Este projeto é o backend da aplicação de e-commerce. Ele é responsável por gerenciar usuários, carrinho de compras, pedidos e a integração com APIs de fornecedores nacionais e europeus.
 
 ## Tecnologias utilizadas
 
